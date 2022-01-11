@@ -5,10 +5,31 @@ provider "aws" {
 resource "aws_instance" "example" {
   ami           = "ami-04505e74c0741db8d"
   instance_type = "t2.micro"
+  user_data = <<-EOF
+              #!/bin/bash
+              echo "Hello World" > index.html
+              nohup busybox nginx -f -p 8080 &
+              EOF
 
   tags = {
     Name = "terraform-example"
   }
 }
 
+resource "aws_security_group" "instance" {
+  name = "terraform-example-instance"
+  
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
