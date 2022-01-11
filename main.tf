@@ -3,12 +3,13 @@ provider "aws" {
 }
 
 resource "aws_instance" "example" {
-  ami           = "ami-04505e74c0741db8d"
-  instance_type = "t2.micro"
+  ami                    = "ami-04505e74c0741db8d"
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.instance.id]
   user_data = <<-EOF
               #!/bin/bash
               echo "Hello World" > index.html
-              nohup busybox nginx -f -p 8080 &
+              nohup busybox httpd -f -p 8080 &
               EOF
 
   tags = {
@@ -33,3 +34,5 @@ resource "aws_security_group" "instance" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+
